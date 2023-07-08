@@ -1,0 +1,226 @@
+import requests
+import pandas as pd
+
+api_key = ''
+url = f'https://www.alphavantage.co/query?function=LISTING_STATUS&apikey={api_key}'
+
+try:
+    response = requests.get(url)
+    data = response.json()
+
+    top_gainers = pd.DataFrame(data['gainers']).head(20)
+    top_losers = pd.DataFrame(data['losers']).head(20)
+    most_active = pd.DataFrame(data['mostactive']).head(20)
+
+    print("Top Gainers:")
+    print(top_gainers)
+
+    print("Top Losers:")
+    print(top_losers)
+
+    print("Most Active Traded Tickers:")
+    print(most_active)
+
+except Exception as e:
+    print("Error:", e)
+
+#correction
+    response = requests.get(url)
+    response.raise_for_status()  # Add this line to raise an exception if the response has an error status
+
+    data = response.json()
+
+    top_gainers = pd.DataFrame(data['gainers']).head(20)
+    top_losers = pd.DataFrame(data['losers']).head(20)
+    most_active = pd.DataFrame(data['mostactive']).head(20)
+
+    print("Top Gainers:")
+    print(top_gainers)
+
+    print("Top Losers:")
+    print(top_losers)
+
+    print("Most Active Traded Tickers:")
+    print(most_active)
+
+except Exception as e:
+    print("Error:", e)
+    print("Response content:", response.content)
+
+
+#structure data
+
+import csv
+from io import StringIO
+
+api_key = ''
+url = f'https://www.alphavantage.co/query?function=LISTING_STATUS&apikey={api_key}'
+
+try:
+    response = requests.get(url)
+    response.raise_for_status()
+    response_content = response.content.decode('utf-8')
+
+    # Use StringIO to create a file-like object from the response content
+    csv_data = StringIO(response_content)
+    reader = csv.DictReader(csv_data)
+
+    # Convert the CSV data to a list of dictionaries
+    data = list(reader)
+
+    # Create a DataFrame from the list of dictionaries
+    df = pd.DataFrame(data)
+
+    print(df)
+
+except Exception as e:
+    print("Error:", e)
+
+#import csv
+
+import requests
+import pandas as pd
+import csv
+from io import StringIO
+
+api_key = ''
+url = f'https://www.alphavantage.co/query?function=LISTING_STATUS&apikey={api_key}'
+
+try:
+    response = requests.get(url)
+    response.raise_for_status()
+    response_content = response.content.decode('utf-8')
+
+    csv_data = StringIO(response_content)
+    reader = csv.DictReader(csv_data)
+
+    data = list(reader)
+
+    df = pd.DataFrame(data)
+
+    df.to_csv('listing_status.csv', index=False)  
+
+    print("CSV file exported successfully.")
+
+except Exception as e:
+    print("Error:", e)
+    print("Response content:", response_content)
+
+
+    import pandas as pd
+import matplotlib.pyplot as plt
+
+# Assuming the dataset is loaded into a DataFrame called 'df'
+# and the asset type column is named 'assetType'
+
+# Calculate the count of each asset type
+asset_type_counts = df['assetType'].value_counts()
+print(asset_type_counts)
+
+
+# Plotting a bar chart
+plt.figure(figsize=(8, 6))
+asset_type_counts.plot(kind='bar')
+plt.xlabel('Asset Type')
+plt.ylabel('Count')
+plt.title('Distribution of Asset Types')
+plt.show()
+
+# Plotting a pie chart
+plt.figure(figsize=(8, 6))
+asset_type_counts.plot(kind='pie', autopct='%1.1f%%')
+plt.axis('equal')
+plt.title('Distribution of Asset Types')
+plt.show()
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Assuming 'df' is the DataFrame containing the listing status data
+# and 'ipo_date_column' is the actual column name containing the IPO dates
+
+# Convert IPO date column to datetime
+df['ipoDate'] = pd.to_datetime(df['ipoDate'])
+
+# Extract the year from IPO dates
+df['year'] = df['ipoDate'].dt.year
+
+# Group the data by year and count the number of companies
+companies_per_year = df.groupby('year').size()
+
+# Plot the number of companies listed each year
+plt.figure(figsize=(10, 6))
+plt.plot(companies_per_year.index, companies_per_year.values, marker='o')
+plt.xlabel('Year')
+plt.ylabel('Number of Companies')
+plt.title('Number of Companies Listed Each Year')
+plt.grid(True)
+plt.show()
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+active_listings = df[df['status'] == 'Active']
+
+active_listings_counts = active_listings.groupby('exchange').size()
+
+active_listings_counts = active_listings_counts.sort_values(ascending=False)
+
+plt.figure(figsize=(10, 6))
+active_listings_counts.plot(kind='barh')
+plt.xlabel('Number of Active Listings')
+plt.ylabel('Exchange')
+plt.title('Number of Active Listings by Exchange')
+plt.grid(True)
+plt.show()
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+df['delistingDate'] = df['delistingDate'].replace('null', pd.NaT)
+
+df['delistingYear'] = pd.to_datetime(df['delistingDate']).dt.year
+
+delisted_counts = df['delistingYear'].value_counts().sort_index().dropna()
+
+plt.figure(figsize=(10, 6))
+plt.plot(delisted_counts.index, delisted_counts.values, marker='o')
+plt.xlabel('Year')
+plt.ylabel('Number of Delisted Companies')
+plt.title('Trend in Number of Delisted Companies Over Time')
+plt.grid(True)
+plt.show() 
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Assuming the dataset is loaded into a DataFrame called 'df'
+# and the exchange column is named 'exchange'
+# and the status column is named 'status'
+
+# Group the data by exchange and status and count the occurrences
+status_distribution = df.groupby(['exchange', 'status']).size().unstack()
+
+# Plotting the stacked bar chart
+plt.figure(figsize=(10, 6))
+status_distribution.plot(kind='bar', stacked=True)
+plt.xlabel('Exchange')
+plt.ylabel('count')
+plt.title('Distribution of Listing Statuses by Exchange')
+plt.legend(title='Listing Status')
+plt.show()
+
+# Plotting the stacked area chart
+plt.figure(figsize=(10, 6))
+status_distribution.plot(kind='area', stacked=True)
+plt.xlabel('Exchange')
+plt.ylabel('count')
+plt.title('Distribution of Listing Statuses by Exchange')
+plt.legend(title='Listing Status')
+plt.show()
+
